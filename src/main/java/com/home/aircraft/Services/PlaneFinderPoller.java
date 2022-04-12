@@ -1,8 +1,8 @@
 package com.home.aircraft.Services;
 
 import com.home.aircraft.Models.Aircraft;
+import com.home.aircraft.Repositories.AircraftRepository;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -11,14 +11,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 @EnableScheduling
 @Component
 class PlaneFinderPoller {
-    private WebClient client = WebClient.create("http://localhost:8080/aircraft");
+    private WebClient client = WebClient.create("http://localhost:8081/planefinder");
 
     private final RedisConnectionFactory connectionFactory;
-    private final RedisOperations<String, Aircraft> redisOperations;
+    private final AircraftRepository repository;
 
-    PlaneFinderPoller(RedisConnectionFactory connectionFactory, RedisOperations<String, Aircraft> redisOperations) {
+    PlaneFinderPoller(RedisConnectionFactory connectionFactory, AircraftRepository repository) {
         this.connectionFactory = connectionFactory;
-        this.redisOperations = redisOperations;
+        this.repository = repository;
     }
 
     @Scheduled(fixedRate = 1000)
@@ -30,11 +30,8 @@ class PlaneFinderPoller {
             .bodyToFlux(Aircraft.class)
             .filter(plane -> ! plane.getReg().isEmpty())
             .toStream()
-            .forEach(ac -> redisOperations.opsForValue().set(ac.getReg(), ac));
+            .forEach(repository::save);
 
-        redisOperations.opsForValue()
-            .getOperations()
-            .keys("*")
-            .forEach(ac -> System.out.println(redisOperations.opsForValue().get(ac)));
+        repository.findAll().forEach(System.out::println);
     }
 }

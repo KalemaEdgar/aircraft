@@ -6,12 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 
 import java.time.Instant;
 
 @Data // Instructs Lombok to create getter, setter, equals(), hashCode(), and toString() methods, creating a so-called data class
 @NoArgsConstructor // Instructs Lombok to create a zero-parameter constructor, thus requiring no arguments
 @AllArgsConstructor // Instructs Lombok to create a constructor with a parameter for each member variable, requiring an argument be provided for all
+@RedisHash // indicates that Aircraft is an aggregate root to be stored in a Redis hash, performing a function similar to what @Entity annotation does for JPA objects.
 @JsonIgnoreProperties(ignoreUnknown = true) // Informs Jackson deserialization mechanisms to ignore fields within JSON responses for which there is no corresponding member variable
 public class Aircraft {
     @Id // Designates the annotated member variable as holding the unique identifier for a database entry/record
@@ -47,40 +49,4 @@ public class Aircraft {
 
     @JsonProperty("bds40_seen_time")
     private Instant bds40SeenTime;
-
-    public String getLastSeenTime() {
-        return lastSeenTime.toString();
-    }
-
-    public void setLastSeenTime(String lastSeenTime) {
-        if (null != lastSeenTime) {
-            this.lastSeenTime = Instant.parse(lastSeenTime);
-        } else {
-            this.lastSeenTime = Instant.ofEpochSecond(0);
-        }
-    }
-
-    public String getPosUpdateTime() {
-        return posUpdateTime.toString();
-    }
-
-    public void setPosUpdateTime(String posUpdateTime) {
-        if (null != posUpdateTime) {
-            this.posUpdateTime = Instant.parse(posUpdateTime);
-        } else {
-            this.posUpdateTime = Instant.ofEpochSecond(0);
-        }
-    }
-
-    public String getBds40SeenTime() {
-        return bds40SeenTime.toString();
-    }
-
-    public void setBds40SeenTime(String bds40SeenTime) {
-        if (null != bds40SeenTime) {
-            this.bds40SeenTime = Instant.parse(bds40SeenTime);
-        } else {
-            this.bds40SeenTime = Instant.ofEpochSecond(0);
-        }
-    }
 }
