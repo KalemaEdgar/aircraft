@@ -20,14 +20,16 @@ public class PlaneFinderPoller {
 
     @Scheduled(fixedRate = 1000)
     private void pollPlanes() {
-        repository.deleteAll();
+        // repository.deleteAll();
 
+        /*
         client.get()
             .retrieve()
             .bodyToFlux(Aircraft.class)
             .filter(plane -> !plane.getReg().isEmpty())
             .toStream()
             .forEach(repository::save);
+        */
 
         repository.findAll().forEach(System.out::println);
     }
